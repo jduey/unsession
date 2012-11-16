@@ -27,7 +27,7 @@ So write a function that will correctly compose functions of this type. Actually
 
 We'll name this function `bind` for reasons to be explained later. One caveat, you cannot use Clojure's `mapcat` or `for` statements.
 
-`(defn bind [mv F]
+`(defn bind [mv f]
      (apply concat
             (map f mv)))`
 
@@ -95,34 +95,22 @@ Pay particular attention to this expression as compared to the same one for 'vec
 
 `(bind (f 2) f)`
 
-Now let's take a look at another monad. Suppose we made the rule that our monadic values were vectors that could only contain at most 1 integer. Now write a function that takes an integer and if that integer is even, returns a vector of that integer incremented by one. But if it's odd, returns an empty vector.
+Now let's take a look at another monad. Suppose we made the rule that our monadic values were vectors that could only contain at most 1 integer.
 
-`(defn f [x]
-     (if (even? x)
-        (vector (inc x))
-        (vector)))`
-
-Try using the `bind` function from before and you get a wrong answer. Why?
-
-`(bind (vector 5) f)`
-`(f 5)`
-
-So let's write a valid `bind` function. We're also going to totally deconstruct all the various steps because of something we'll run into later.
+Let's totally deconstruct all the various steps of 'bind' because of something we'll run into later.
 
 `(defn bind [mv f]
      (let [v (first mv)
            new-mv (f v)
            new-v (first new-mv)]
-        (if (nil? new-v)
-           (vector)
-           (vector new-v))))`
+        (vector new-v)))`
 
 Here are the steps we take in this bind.
 
 * unwrap the monadic value passed in to get the value inside it
 * call 'f' with that value.
 * unwrap the monadic value f returns
-* create an appropriate monadic value as the result of `bind`
+* create an appropriate monadic value to return as the result of `bind`
 
 Now what other types of containers do we have a available in Clojure?
 
